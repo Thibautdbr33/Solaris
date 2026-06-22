@@ -153,7 +153,7 @@ Côté cloud, **Azure Monitor** assure le suivi des ressources Azure ; les deux 
 
 ## Partie 8 — Sauvegarde, PRA et PCA
 
-**Stratégie de sauvegarde (règle 3-2-1).** L'architecture applique la règle **3-2-1** : trois copies des données, sur deux types de supports différents, dont une copie externalisée hors site. Concrètement, **Proxmox Backup Server** réalise les sauvegardes locales des machines virtuelles, et une **copie est externalisée vers Azure** (site 2).
+**Stratégie de sauvegarde (règle 3-2-1).** L'architecture applique la règle **3-2-1** : trois copies des données, sur deux types de supports différents, dont une copie externalisée hors site. Concrètement, **Proxmox Backup Server** réalise les sauvegardes locales des machines virtuelles, et une **copie est externalisée vers Azure** sur un storage account (le storage account est monté comme un (site 2).
 
 **Plan de reprise d'activité (PRA).** Le second site Azure constitue la cible de reprise. En cas de sinistre majeur sur le site principal, les services critiques (fichiers, Sage, annuaire) peuvent être relancés à partir des données répliquées dans Azure. Des objectifs cibles sont proposés à titre d'exemple :
 
