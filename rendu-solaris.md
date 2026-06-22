@@ -83,7 +83,7 @@ L'architecture proposée repose sur une logique de répartition claire : **le si
 
 ***Figure 1 — Architecture cible SOLARIS (hybride on-premise / cloud).***
 
-Le schéma se lit de haut en bas : le cloud Azure (site 2, dédié au PRA) en haut, relié par un tunnel VPN IPsec au pare-feu **pfSense** du site principal ; sous pfSense, l'hôte de virtualisation **Proxmox VE** héberge les machines virtuelles du cœur métier ; en bas, le **plan de segmentation par VLAN** documente l'isolation des différents usages du réseau.
+Le schéma se lit de haut en bas : le cloud Azure (site 2, dédié au PRA) en haut, relié par un tunnel VPN IPsec au pare-feu **opensens** du site principal ; sous opensens, l'hôte de virtualisation **Proxmox VE** héberge les machines virtuelles du cœur métier ; en bas, le **plan de segmentation par VLAN** documente l'isolation des différents usages du réseau.
 
 ---
 
@@ -108,7 +108,7 @@ Le schéma se lit de haut en bas : le cloud Azure (site 2, dédié au PRA) en ha
 
 ## Partie 5 — Sécurité réseau : segmentation et filtrage
 
-La segmentation par **VLAN** constitue la pierre angulaire de la sécurité réseau de SOLARIS. Elle est portée par un commutateur administrable et par le pare-feu **pfSense**, qui assure le routage inter-VLAN, le filtrage, le service DHCP et la terminaison des VPN.
+La segmentation par **VLAN** constitue la pierre angulaire de la sécurité réseau de SOLARIS. Elle est portée par un commutateur administrable et par le pare-feu **opensens**, qui assure le routage inter-VLAN, le filtrage, le service DHCP et la terminaison des VPN.
 
 | VLAN | Nom | Usage |
 |---|---|---|
@@ -116,10 +116,10 @@ La segmentation par **VLAN** constitue la pierre angulaire de la sécurité rés
 | 20 | SERVEURS | AD/DNS, serveur de fichiers + Sage, supervision |
 | 30 | MÉTIER | Postes techniciens et bureau d'études |
 | 40 | DMZ | Serveur web exposé (site vitrine, reverse proxy) |
-| 50 | MGMT | Interfaces d'administration (Proxmox, pfSense, commutateur) |
+| 50 | MGMT | Interfaces d'administration (Proxmox, opensens, commutateur) |
 | 99 | INVITÉS | Wi-Fi visiteurs, isolé du reste du réseau (accès internet seul) |
 
-Les principes de filtrage retenus sont les suivants : le VLAN **INVITÉS** est totalement isolé du SI ; le VLAN **DMZ** ne peut initier aucune connexion vers le LAN interne ; les flux entre VLAN ne sont autorisés que lorsqu'ils sont strictement nécessaires (par exemple les postes métier vers les partages de fichiers). Le **service DHCP est porté par pfSense** et non par l'Active Directory.
+Les principes de filtrage retenus sont les suivants : le VLAN **INVITÉS** est totalement isolé du SI ; le VLAN **DMZ** ne peut initier aucune connexion vers le LAN interne ; les flux entre VLAN ne sont autorisés que lorsqu'ils sont strictement nécessaires (par exemple les postes métier vers les partages de fichiers). Le **service DHCP est porté par opensens** et non par l'Active Directory.
 
 Des mesures complémentaires renforcent la sécurité : **chiffrement des disques** (BitLocker) sur le serveur hébergeant Sage et les partages, **authentification multifacteur (MFA)** pour les accès distants et pour le portail de supervision, et mise en place d'un **reverse proxy avec pare-feu applicatif (WAF)** devant le portail de monitoring photovoltaïque exposé.
 
@@ -131,7 +131,7 @@ L'hybridation repose sur l'usage du **cloud Microsoft Azure comme second site**,
 
 **Infrastructure as Code.** L'ensemble des ressources Azure (réseau virtuel, passerelle VPN, stockage de sauvegarde) est décrit en **Terraform**, avec un **état distant** (remote state). Cette approche garantit la reproductibilité, la traçabilité des modifications et la possibilité de reconstruire l'environnement à l'identique.
 
-**Liaison sécurisée.** Un **VPN site-à-site IPsec** relie le pare-feu pfSense du site principal à l'**Azure VPN Gateway**. Les deux environnements communiquent ainsi de manière privée et chiffrée à travers l'internet public.
+**Liaison sécurisée.** Un **VPN site-à-site IPsec** relie le pare-feu opensens du site principal à l'**Azure VPN Gateway**. Les deux environnements communiquent ainsi de manière privée et chiffrée à travers l'internet public.
 
 **Accès distant des collaborateurs.** Les techniciens nomades accèdent au SI via un **VPN SSL** via Wireguard, assorti d'une authentification multifacteur, leur permettant de travailler comme s'ils étaient au siège.
 
@@ -208,7 +208,7 @@ L'architecture cible proposée pour SOLARIS répond aux quatre enjeux identifié
 - **Figure 1** — Schéma d'architecture cible SOLARIS (`solaris-architecture-cible.svg`) : **réalisé par l'équipe** dans le cadre du projet. © Équipe MSPR SOLARIS.
 - Documentation officielle **Proxmox VE** — *Proxmox Server Solutions GmbH*.
 - Documentation officielle **Microsoft Azure** (Virtual Network, VPN Gateway, Azure Monitor) — *Microsoft*.
-- Documentation officielle **pfSense** — *Netgate*.
+- Documentation officielle **opensens** — *Netgate*.
 - Documentation officielle **Prometheus** et **Grafana** — *Prometheus Authors / Grafana Labs*.
 - Documentation **Terraform / OpenTofu** — *HashiCorp / OpenTofu*.
 
